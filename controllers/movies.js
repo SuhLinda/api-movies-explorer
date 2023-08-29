@@ -7,62 +7,86 @@ const {
   ERROR_CODE_MESSAGE_400,
   ERROR_CODE_MESSAGE_MOVIE_403,
   ERROR_CODE_MESSAGE_MOVIE_404,
+  ERROR_CODE_MESSAGE_MOVIES_404,
 } = require('../utils/constants');
 
-function getMovies(req, res, next) {
-  return Movie.find({})
-    .then((movies) => {
-      res.send(movies);
-    })
-    .catch((err) => {
-      next(err);
-    });
+async function getMovies(req, res, next) {
+  try {
+    const owner = req.user._id;
+    console.log(owner)
+
+    const movies = await Movie.find({ owner });
+    if (!movies) {
+      return next(new ErrorNotFound(ERROR_CODE_MESSAGE_MOVIES_404));
+    }
+    return res.status(200).send(movies);
+  } catch (err) {
+    return next(err);
+  }
 }
 
-function createMovie(req, res, next) {
-  const owner = req.user._id;
-  return Movie.create({
-    owner,
-    ...req.body,
-  })
-    .then((movie) => {
-      res.status(201).send(movie);
-    })
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        next(new ErrorBadRequest(ERROR_CODE_MESSAGE_400));
-        return;
-      }
-      next(err);
+async function createMovie(req, res, next) {
+  try {
+    const {
+      country,
+      director,
+      duration,
+      year,
+      description,
+      image,
+      trailerLink,
+      thumbnail,
+      movieId,
+      nameRU,
+      nameEN,
+    } = req.body;
+    const newMovie = await Movie.create({
+      owner: req.user._id,
+      country,
+      director,
+      duration,
+      year,
+      description,
+      image,
+      trailerLink,
+      thumbnail,
+      movieId,
+      nameRU,
+      nameEN,
     });
+    console.log(newMovie)
+    return res.status(201).send(newMovie);
+  } catch (err) {
+    if (err.name === 'ValidationError') {
+      return next(new ErrorBadRequest(ERROR_CODE_MESSAGE_400));
+    }
+    return next(err);
+  }
 }
 
-function deleteMovie(req, res, next) {
-  const owner = req.user._id;
-  const { id } = req.params;
+async function deleteMovie(req, res, next) {
+  try {
+    const { movieId } = req.params;
+    const owner = req.user._id;
+    console.log(req.params)
 
-  Movie.findById(id)
-    .orFail(() => {
-      throw new ErrorNotFound(ERROR_CODE_MESSAGE_MOVIE_404);
-    })
-    .then((movie) => {
-      if (owner.toString() === movie.owner.toString()) {
-        Movie.deleteOne(movie)
-          .then(() => {
-            res.status(200).send(SUCCESS_CODE_MESSAGE_MOVIE_200);
-          })
-          .catch(next);
-      } else {
-        throw new ErrorNotSuccess(ERROR_CODE_MESSAGE_MOVIE_403);
-      }
-    })
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        next(new ErrorBadRequest(ERROR_CODE_MESSAGE_400));
-        return;
-      }
-      next(err);
-    });
+    const movie = await Movie.findById(movieId);
+    console.log(movie, movieId)
+    if (!movie) {
+      return next(new ErrorNotFound(ERROR_CODE_MESSAGE_MOVIE_404));
+    }
+    const movieOwnerId = movie.owner.toString();
+    if (movieOwnerId !== owner) {
+      return next(new ErrorNotSuccess(ERROR_CODE_MESSAGE_MOVIE_403));
+    }
+    const movieDelete = await Movie.deleteOne(movieId);
+    if (!movieDelete) {
+      return next(new ErrorNotFound(ERROR_CODE_MESSAGE_MOVIE_404));
+    }
+    return res.status(200).send(SUCCESS_CODE_MESSAGE_MOVIE_200);
+  } catch (err) {
+    return next(err);
+  }
 }
 
 module.exports = {

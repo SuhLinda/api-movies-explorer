@@ -40,7 +40,6 @@ const validationCreateMovie = celebrate({
     image: Joi.string().required().uri().regex(reqExp),
     trailerLink: Joi.string().required().uri().regex(reqExp),
     thumbnail: Joi.string().required().uri().regex(reqExp),
-    owner: Joi.string(),
     movieId: Joi.number().required(),
     nameRU: Joi.string().required(),
     nameEN: Joi.string().required(),

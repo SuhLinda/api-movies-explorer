@@ -13,92 +13,99 @@ const {
   ERROR_CODE_MESSAGE_USER_409,
 } = require('../utils/constants');
 
-function getUserMe(req, res, next) {
-  return User.findById(req.user._id)
-    .orFail(() => {
-      throw new ErrorNotFound({ message: ERROR_CODE_MESSAGE_USER_404 });
-    })
-    .then((user) => {
-      res.send({ data: user });
-    })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new ErrorBadRequest(ERROR_CODE_MESSAGE_400));
-      }
-      return next(err);
+async function getUserMe(req, res, next) {
+  try {
+    const { _id } = req.user;
+    const currentUser = await User.findById(_id);
+    if (!currentUser) {
+      return next(new ErrorNotFound(ERROR_CODE_MESSAGE_USER_404));
+    }
+    return res.send({
+      name: currentUser.name,
+      email: currentUser.email,
     });
+  } catch (err) {
+    return next(err);
+  };
 }
 
-function updateProfile(req, res, next) {
-  const { email, name } = req.body;
-
-  return User.findByIdAndUpdate(
-    req.user._id,
-    { email, name },
-    {
-      new: true,
-      runValidators: true,
-    },
-  )
-    .then((user) => {
-      res.send({ data: user });
-    })
-    .catch((err) => {
-      if (err.name === 'ValidationError' || err.name === 'CastError') {
-        next(new ErrorBadRequest(ERROR_CODE_MESSAGE_400));
-        return;
-      }
-      next(err);
+async function updateProfile(req, res, next) {
+  try {
+    const { email, name } = req.body;
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      { email, name },
+      {
+        new: true,
+        runValidators: true,
+      },
+    );
+    return res.send({
+      name: user.name,
+      email: user.email,
     });
+  } catch (err) {
+    if (err.name === 'ValidationError' || err.name === 'CastError') {
+      return next(new ErrorBadRequest(ERROR_CODE_MESSAGE_400));
+    }
+    return next(err);
+  }
 }
 
-function createUser(req, res, next) {
-  bcrypt.hash(req.body.password, SALT_QUANTITY)
-    .then((hash) => User.create({
-      ...req.body,
-      password: hash,
-    }))
-    .then((user) => {
-      res.status(201).send({
-        _id: user._id,
-        email: user.email,
-        name: user.name,
-      });
+async function createUser(req, res, next) {
+  try {
+    const {
+      email,
+      name,
+      password,
+    } = req.body;
+    const user = await User.findOne({ email });
+    if (user) {
+      return next(new ErrorUserExist(ERROR_CODE_MESSAGE_USER_409));
+    }
+    const hashPassword = await bcrypt.hash(password, SALT_QUANTITY);
+    const newUser = await User.create({
+      email,
+      name,
+      password: hashPassword,
     })
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        return next(new ErrorBadRequest(ERROR_CODE_MESSAGE_400));
-      }
-      if (err.code === 11000) {
-        return next(new ErrorUserExist(ERROR_CODE_MESSAGE_USER_409));
-      }
-      return next(err);
-    });
+    return res.send({
+      email: newUser.email,
+      name: newUser.name,
+      _id: newUser._id,
+    })
+  } catch (err) {
+    if (err.name === 'ValidationError') {
+      return next(new ErrorBadRequest(ERROR_CODE_MESSAGE_400));
+    }
+    if (err.code === 11000) {
+      return next(new ErrorUserExist(ERROR_CODE_MESSAGE_USER_409));
+    }
+    return next(err);
+  }
 }
 
-function login(req, res, next) {
-  const {
-    email,
-    password,
-  } = req.body;
-
-  return User.findUserByCredentials(
-    email,
-    password,
-  )
-    .then((user) => {
+async function login(req, res, next) {
+  try {
+    const {
+      email,
+      password,
+    } = req.body;
+    const user = await User.findUserByCredentials(email, password);
+    if (user) {
       const token = jwt.sign(
         { _id: user._id },
         NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
         { expiresIn: '7d' },
       );
-      res.send({
+      return res.send({
         token,
         email,
-
       });
-    })
-    .catch(next);
+    }
+  } catch (err) {
+    return next(err);
+  }
 }
 
 module.exports = {

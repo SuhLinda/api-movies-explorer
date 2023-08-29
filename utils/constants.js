@@ -6,6 +6,7 @@ const ERROR_CODE_MESSAGE_LOGIN_401 = 'неправильные почта или
 const ERROR_CODE_MESSAGE_MOVIE_403 = 'вы не являетесь владельцем фильма';
 const ERROR_CODE_MESSAGE_404 = 'данной страницы не существует';
 const ERROR_CODE_MESSAGE_MOVIE_404 = 'фильм не найден';
+const ERROR_CODE_MESSAGE_MOVIES_404 = 'сохранённые фильмы не найдены';
 const ERROR_CODE_MESSAGE_USER_404 = 'пользователь не найден';
 const ERROR_CODE_MESSAGE_USER_409 = 'пользователь с таким email уже существует';
 const ERROR_CODE_MESSAGE_500 = 'ошибка сервера';
@@ -39,6 +40,7 @@ module.exports = {
   ERROR_CODE_MESSAGE_MOVIE_403,
   ERROR_CODE_MESSAGE_404,
   ERROR_CODE_MESSAGE_MOVIE_404,
+  ERROR_CODE_MESSAGE_MOVIES_404,
   ERROR_CODE_MESSAGE_USER_404,
   ERROR_CODE_MESSAGE_USER_409,
   ERROR_CODE_MESSAGE_500,

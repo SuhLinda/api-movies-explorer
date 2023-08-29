@@ -1,4 +1,3 @@
-const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
@@ -23,9 +22,6 @@ function authorizationUser(req, res, next) {
       NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
       { expiresIn: '7d' },
     );
-    req.user = {
-      _id: new mongoose.Types.ObjectId(payload._id),
-    };
   } catch (err) {
     next(new ErrorUnauthorized(ERROR_CODE_MESSAGE_401));
   }
