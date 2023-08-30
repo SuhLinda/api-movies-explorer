@@ -1,4 +1,6 @@
+const UNSUCCESS_CODE_MESSAGE_200 = 'данные cookies удалены';
 const SUCCESS_CODE_MESSAGE_MOVIE_200 = 'фильм удалён';
+const SUCCESS_CODE_MESSAGE_USER_201 = 'вы авторизованы';
 const SUCCESS_CODE_MESSAGE_MOVIE_201 = 'фильм создан';
 const ERROR_CODE_MESSAGE_400 = 'переданы некорректные данные';
 const ERROR_CODE_MESSAGE_401 = 'необходима авторизация';
@@ -32,7 +34,9 @@ const MESSAGE_FIELD_MAX_LENGTH_NAME = 'Минимальная длина пол�
 const MESSAGE_FIELD_NAME = 'необходимо заполнить поле "name"';
 
 module.exports = {
+  UNSUCCESS_CODE_MESSAGE_200,
   SUCCESS_CODE_MESSAGE_MOVIE_200,
+  SUCCESS_CODE_MESSAGE_USER_201,
   SUCCESS_CODE_MESSAGE_MOVIE_201,
   ERROR_CODE_MESSAGE_400,
   ERROR_CODE_MESSAGE_401,

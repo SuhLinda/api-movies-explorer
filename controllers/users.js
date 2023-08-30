@@ -2,15 +2,21 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
-const { NODE_ENV, JWT_SECRET } = process.env;
+const {
+  NODE_ENV,
+  JWT_SECRET,
+  JWT_SECRET_KEY,
+} = process.env;
 const { SALT_QUANTITY } = require('../utils/config');
 const ErrorBadRequest = require('../errors/ErrorBadRequest');
 const ErrorNotFound = require('../errors/ErrorNotFound');
 const ErrorUserExist = require('../errors/ErrorUserExist');
 const {
+  UNSUCCESS_CODE_MESSAGE_200,
   ERROR_CODE_MESSAGE_400,
   ERROR_CODE_MESSAGE_USER_404,
   ERROR_CODE_MESSAGE_USER_409,
+  SUCCESS_CODE_MESSAGE_USER_201,
 } = require('../utils/constants');
 
 async function getUserMe(req, res, next) {
@@ -26,7 +32,7 @@ async function getUserMe(req, res, next) {
     });
   } catch (err) {
     return next(err);
-  };
+  }
 }
 
 async function updateProfile(req, res, next) {
@@ -68,12 +74,12 @@ async function createUser(req, res, next) {
       email,
       name,
       password: hashPassword,
-    })
+    });
     return res.send({
       email: newUser.email,
       name: newUser.name,
       _id: newUser._id,
-    })
+    });
   } catch (err) {
     if (err.name === 'ValidationError') {
       return next(new ErrorBadRequest(ERROR_CODE_MESSAGE_400));
@@ -95,17 +101,30 @@ async function login(req, res, next) {
     if (user) {
       const token = jwt.sign(
         { _id: user._id },
-        NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
+        NODE_ENV === 'production' ? JWT_SECRET : JWT_SECRET_KEY,
         { expiresIn: '7d' },
       );
+      res.cookie('jwt', token, {
+        httpOnly: true,
+        sameSite: 'none',
+        secure: true,
+        maxAge: 6.048e+8,
+      });
       return res.send({
-        token,
         email,
       });
     }
+    return res.status(201).send(SUCCESS_CODE_MESSAGE_USER_201);
   } catch (err) {
     return next(err);
   }
+}
+
+function logOut(req, res) {
+  return res.cookie(
+    'jwt',
+    { expires: Date.now() },
+  ).send(UNSUCCESS_CODE_MESSAGE_200);
 }
 
 module.exports = {
@@ -113,4 +132,5 @@ module.exports = {
   updateProfile,
   createUser,
   login,
+  logOut,
 };

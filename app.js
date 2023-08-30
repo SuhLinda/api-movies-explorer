@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
+const cookie = require('cookie-parser');
 const helmet = require('helmet');
 const bodyParser = require('body-parser');
 const { errors } = require('celebrate');
@@ -9,15 +10,15 @@ const entrance = require('./routes/index');
 const limiter = require('./middlewars/rateLimit');
 const handleError = require('./middlewars/handleError');
 const { requestLogger, errorLogger } = require('./loggers/logger');
-const server = require('./utils/config');
-
 const {
-  PORT = server.PORT,
-  DB_URL = server.DB_URL,
-} = process.env;
+  PORT,
+  NODE_ENV,
+  DB_URL,
+  DB_URL_MONGO,
+} = require('./utils/config');
 
 const app = express();
-mongoose.connect(DB_URL);
+mongoose.connect(NODE_ENV === 'production' ? DB_URL : DB_URL_MONGO);
 
 app.use(cors({
   origin: [
@@ -26,16 +27,11 @@ app.use(cors({
   ],
 }));
 
+app.use(cookie());
 app.use(helmet());
 app.use(bodyParser.json());
 app.use(requestLogger);
 app.use(limiter);
-
-app.get('/crash-test', () => {
-  setTimeout(() => {
-    throw new Error('Сервер сейчас упадёт');
-  }, 0);
-});
 
 app.use(entrance);
 

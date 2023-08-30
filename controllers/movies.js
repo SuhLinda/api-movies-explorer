@@ -13,7 +13,6 @@ const {
 async function getMovies(req, res, next) {
   try {
     const owner = req.user._id;
-    console.log(owner)
 
     const movies = await Movie.find({ owner });
     if (!movies) {
@@ -54,7 +53,6 @@ async function createMovie(req, res, next) {
       nameRU,
       nameEN,
     });
-    console.log(newMovie)
     return res.status(201).send(newMovie);
   } catch (err) {
     if (err.name === 'ValidationError') {
@@ -66,20 +64,17 @@ async function createMovie(req, res, next) {
 
 async function deleteMovie(req, res, next) {
   try {
-    const { movieId } = req.params;
+    const movieId = req.params.id;
     const owner = req.user._id;
-    console.log(req.params)
 
-    const movie = await Movie.findById(movieId);
-    console.log(movie, movieId)
+    const movie = await Movie.findById({ _id: movieId });
     if (!movie) {
       return next(new ErrorNotFound(ERROR_CODE_MESSAGE_MOVIE_404));
     }
-    const movieOwnerId = movie.owner.toString();
-    if (movieOwnerId !== owner) {
+    if (movie.owner.toString() !== owner) {
       return next(new ErrorNotSuccess(ERROR_CODE_MESSAGE_MOVIE_403));
     }
-    const movieDelete = await Movie.deleteOne(movieId);
+    const movieDelete = await Movie.findOneAndDelete({ _id: movieId });
     if (!movieDelete) {
       return next(new ErrorNotFound(ERROR_CODE_MESSAGE_MOVIE_404));
     }
