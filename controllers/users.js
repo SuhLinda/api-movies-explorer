@@ -105,10 +105,9 @@ async function login(req, res, next) {
         { expiresIn: '7d' },
       );
       res.cookie('jwt', token, {
+        maxAge: 3600000,
         httpOnly: true,
-        sameSite: 'none',
-        secure: true,
-        maxAge: 6.048e+8,
+        sameSite: true,
       });
       return res.send({
         email,
