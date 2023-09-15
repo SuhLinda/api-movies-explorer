@@ -10,7 +10,6 @@ const {
   MESSAGE_FIELD_PASSWORD,
   MESSAGE_FIELD_MIN_LENGTH_NAME,
   MESSAGE_FIELD_MAX_LENGTH_NAME,
-  MESSAGE_FIELD_NAME,
 } = require('../utils/constants');
 
 const userSchema = new mongoose.Schema(
@@ -34,7 +33,6 @@ const userSchema = new mongoose.Schema(
       type: String,
       minLength: [2, MESSAGE_FIELD_MIN_LENGTH_NAME],
       maxLength: [30, MESSAGE_FIELD_MAX_LENGTH_NAME],
-      required: [true, MESSAGE_FIELD_NAME],
     },
   },
   {
