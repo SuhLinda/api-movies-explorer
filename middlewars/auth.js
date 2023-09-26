@@ -9,6 +9,7 @@ const ErrorUnauthorized = require('../errors/ErrorUnauthorized');
 const { ERROR_CODE_MESSAGE_401 } = require('../utils/constants');
 
 function authorizationUser(req, res, next) {
+
   const token = req.cookies.jwt;
 
   if (!token) {
@@ -20,7 +21,7 @@ function authorizationUser(req, res, next) {
   try {
     payload = jwt.verify(
       token,
-      NODE_ENV === 'production' ? JWT_SECRET : JWT_SECRET_KEY,
+      NODE_ENV === 'production' ? JWT_SECRET : 'test-secret-key',
       { expiresIn: '7d' },
     );
   } catch (err) {

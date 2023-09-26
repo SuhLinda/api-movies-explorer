@@ -1,4 +1,4 @@
-const reqExp = /^(https?:\/\/)?(www\.)?[A-Za-z0-9-]+\.[A-Za-z]{2,}(\/[A-Za-z0-9-._~:/?#[\]@!$&'()*+,;=]*)?$/;
+const reqExp = /^((http|https|ftp):\/\/)?(([A-Z0-9][A-Z0-9_-]*)(\.[A-Z0-9][A-Z0-9_-]*)+)/i;
 const SALT_QUANTITY = 10;
 const JWT_SECRET_KEY = 'dev-secret';
 
@@ -7,7 +7,7 @@ const {
   NODE_ENV,
   JWT_SECRET,
   DB_URL = 'mongodb://127.0.0.1:27017/bitfilmsdb',
-  DB_URL_MONGO,
+  DB_URL_MONGO = 'mongodb://127.0.0.1:27017/bitfilmsdb',
 } = process.env;
 
 module.exports = {

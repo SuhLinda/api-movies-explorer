@@ -78,7 +78,6 @@ async function createUser(req, res, next) {
     return res.send({
       email: newUser.email,
       name: newUser.name,
-      _id: newUser._id,
     });
   } catch (err) {
     if (err.name === 'ValidationError') {
@@ -101,7 +100,7 @@ async function login(req, res, next) {
     if (user) {
       const token = jwt.sign(
         { _id: user._id },
-        NODE_ENV === 'production' ? JWT_SECRET : JWT_SECRET_KEY,
+        NODE_ENV === 'production' ? JWT_SECRET : 'test-secret-key',
         { expiresIn: '7d' },
       );
       res.cookie('jwt', token, {
@@ -120,10 +119,8 @@ async function login(req, res, next) {
 }
 
 function logOut(req, res) {
-  return res.cookie(
-    'jwt',
-    { expires: Date.now() },
-  ).send(UNSUCCESS_CODE_MESSAGE_200);
+  res.clearCookie('jwt');
+  res.send(UNSUCCESS_CODE_MESSAGE_200);
 }
 
 module.exports = {

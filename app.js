@@ -22,9 +22,10 @@ mongoose.connect(NODE_ENV === 'production' ? DB_URL : DB_URL_MONGO);
 
 app.use(cors({
   origin: [
-    'http://localhost:3000',
+    'http://localhost:3001',
     'https://lindasux.nomoredomainsicu.ru',
   ],
+  credentials: true,
 }));
 
 app.use(cookie());
