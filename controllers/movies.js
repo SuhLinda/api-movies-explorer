@@ -78,7 +78,7 @@ async function deleteMovie(req, res, next) {
     if (!movieDelete) {
       return next(new ErrorNotFound(ERROR_CODE_MESSAGE_MOVIE_404));
     }
-    return res.status(200).send(SUCCESS_CODE_MESSAGE_MOVIE_200);
+    return res.status(200).send({SUCCESS_CODE_MESSAGE_MOVIE_200});
   } catch (err) {
     return next(err);
   }

@@ -120,7 +120,7 @@ async function login(req, res, next) {
 
 function logOut(req, res) {
   res.clearCookie('jwt');
-  res.send(UNSUCCESS_CODE_MESSAGE_200);
+  res.send({UNSUCCESS_CODE_MESSAGE_200});
 }
 
 module.exports = {
