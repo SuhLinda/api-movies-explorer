@@ -100,7 +100,7 @@ async function login(req, res, next) {
     if (user) {
       const token = jwt.sign(
         { _id: user._id },
-        NODE_ENV === 'production' ? JWT_SECRET : 'test-secret-key',
+        NODE_ENV === 'production' ? JWT_SECRET : JWT_SECRET_KEY,
         { expiresIn: '7d' },
       );
       res.cookie('jwt', token, {
