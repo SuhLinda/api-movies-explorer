@@ -75,6 +75,16 @@ async function createUser(req, res, next) {
       name,
       password: hashPassword,
     });
+    const token = jwt.sign(
+      { _id: newUser._id },
+      NODE_ENV === 'production' ? JWT_SECRET : 'test-secret-key',
+      { expiresIn: '7d' },
+    );
+    res.cookie('jwt', token, {
+      maxAge: 3600000,
+      httpOnly: true,
+      sameSite: true,
+    });
     return res.send({
       email: newUser.email,
       name: newUser.name,
@@ -100,7 +110,7 @@ async function login(req, res, next) {
     if (user) {
       const token = jwt.sign(
         { _id: user._id },
-        NODE_ENV === 'production' ? JWT_SECRET : JWT_SECRET_KEY,
+        NODE_ENV === 'production' ? JWT_SECRET : 'test-secret-key',
         { expiresIn: '7d' },
       );
       res.cookie('jwt', token, {

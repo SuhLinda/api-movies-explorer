@@ -21,7 +21,7 @@ function authorizationUser(req, res, next) {
   try {
     payload = jwt.verify(
       token,
-      NODE_ENV === 'production' ? JWT_SECRET : JWT_SECRET_KEY,
+      NODE_ENV === 'production' ? JWT_SECRET : 'test-secret-key',
       { expiresIn: '7d' },
     );
   } catch (err) {
